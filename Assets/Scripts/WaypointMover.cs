@@ -57,7 +57,7 @@ public class WaypointMover : MonoBehaviour
     // Create an IEnumerator MoveBetweenWayPoints below. 
     IEnumerator MoveBetweenWayPoints()
     {
-        float _distance ;
+        float _distance;
         Vector3 _origin = rb.transform.position;
         while (true)
         {
@@ -77,7 +77,6 @@ public class WaypointMover : MonoBehaviour
             if (_isPingPonging == true)
             {
                 _waypoints.Reverse();
-
             }
             _distance = Vector3.Distance(rb.transform.position, _origin);
             while (_distance > 0.001f)
@@ -87,9 +86,6 @@ public class WaypointMover : MonoBehaviour
                 yield return null;
             }
             yield return new WaitForSeconds(waittime);
-
-
-
         }
     }
 
