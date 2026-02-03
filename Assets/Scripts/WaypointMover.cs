@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 [RequireComponent(typeof(Rigidbody))]
 public class WaypointMover : MonoBehaviour
 {
-
+    public bool _isPingPonging;
+    public float waittime;
     
     Rigidbody rb;
 
@@ -20,7 +23,7 @@ public class WaypointMover : MonoBehaviour
     // Also sets the position of the platform to the position of the 1st waypoint.
     private void Start()
     {
-
+        
         rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
 
@@ -29,7 +32,6 @@ public class WaypointMover : MonoBehaviour
             if (!childTransform.CompareTag("Waypoint")) continue;
 
             _waypoints.Add(childTransform.position);
-
         }
 
         if (_waypoints.Count == 0) return;
@@ -40,7 +42,7 @@ public class WaypointMover : MonoBehaviour
         if (_waypoints.Count > 1)
         {
             //TODO: once MoveBetweenWayPoints method exists, uncomment the line below. 
-            //StartCoroutine(MoveBetweenWayPoints());
+            StartCoroutine(MoveBetweenWayPoints());
         }
         
         
@@ -53,6 +55,43 @@ public class WaypointMover : MonoBehaviour
 
     // Challenge: 
     // Create an IEnumerator MoveBetweenWayPoints below. 
+    IEnumerator MoveBetweenWayPoints()
+    {
+        float _distance ;
+        Vector3 _origin = rb.transform.position;
+        while (true)
+        {
+            foreach (Vector3 waypoint in _waypoints)
+            {
+
+                 _distance = Vector3.Distance(rb.transform.position, waypoint);
+                while (_distance > 0.001f)
+                {
+                    rb.MovePosition(Vector3.MoveTowards(rb.transform.position, waypoint, _speed * Time.deltaTime));
+                    _distance = Vector3.Distance(rb.transform.position, waypoint);
+                    yield return null;
+                }
+
+                yield return new WaitForSeconds(waittime);
+            }
+            if (_isPingPonging == true)
+            {
+                _waypoints.Reverse();
+
+            }
+            _distance = Vector3.Distance(rb.transform.position, _origin);
+            while (_distance > 0.001f)
+            {
+                rb.MovePosition(Vector3.MoveTowards(rb.transform.position, _origin, _speed * Time.deltaTime));
+                _distance = Vector3.Distance(rb.transform.position, _origin);
+                yield return null;
+            }
+            yield return new WaitForSeconds(waittime);
+
+
+
+        }
+    }
 
     // The coroutine should make the platform move to the waypoints in order.
     // At each waypoint, wait for 1 second. Hint: WaitForSecondsRealTime(1f)
